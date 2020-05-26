@@ -1,0 +1,19 @@
+{
+  "name": "d3-examples",
+  "version": "1.0.0",
+  "description": "Collection of charts created with D3.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisvaillancourt/d3-examples.git"
+  },
+  "author": "Chris Vaillancourt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chrisvaillancourt/d3-examples/issues"
+  },
+  "homepage": "https://github.com/chrisvaillancourt/d3-examples#readme"
+}
