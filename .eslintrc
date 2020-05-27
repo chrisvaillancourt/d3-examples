@@ -1,18 +1,29 @@
 {
   "root": true,
-  "extends": "",
-  "plugins": [
-    "eslint-plugin-import"
-  ],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "plugins": ["prettier", "eslint-plugin-import"],
+  "ignorePatterns": ["*.html", "node_modules/"],
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "impliedStrict": false
+    }
+  },
   "rules": {
+    "prettier/prettier": "error",
+    "semi": ["error", "always"],
+    "no-unused-vars": "warn",
     "no-bitwise": "off",
     "no-lonely-if": "off",
     "class-methods-use-this": "off",
     "arrow-body-style": "off",
     "no-loop-func": "off",
-    "no-param-reassign": [
-      "off"
-    ],
+    "no-param-reassign": ["off"],
     "import/prefer-default-export": "off"
   }
 }
