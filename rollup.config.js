@@ -1,4 +1,4 @@
-import copy from 'rollup-plugin-copy';
+// import copy from 'rollup-plugin-copy';
 import del from 'rollup-plugin-delete';
 import livereload from 'rollup-plugin-livereload';
 import postcss from 'rollup-plugin-postcss';
@@ -10,7 +10,7 @@ import babel from '@rollup/plugin-babel';
 // Builds based on environment
 // const OUTPUT =
 //   process.env.BUILD === 'development' ? 'output/dev' : 'output/dist';
-const OUTPUT = 'site';
+const OUTPUT = 'public';
 const SOURCEMAP = process.env.BUILD === 'development' ? 'inline' : false;
 const MINIFY = process.env.BUILD === 'development' ? null : terser();
 const SERVER =
@@ -19,28 +19,33 @@ const SERVER =
     : [];
 
 export default {
-  input: ['./src/scatterplot/scatter.js', './src/bar-chart/barchart.js'],
+  input: {
+    'scatter/index': './src/scatterplot/scatter.js',
+    'barchart/index': './src/bar-chart/barchart.js',
+  },
   output: {
     dir: OUTPUT,
     format: 'esm',
     sourcemap: SOURCEMAP,
+    entryFileNames: '[name].js',
   },
   plugins: [
+    del({ targets: OUTPUT }),
     resolve(),
     babel({ babelHelpers: 'bundled' }),
-    del({ targets: OUTPUT }),
     MINIFY,
     postcss({
       extensions: ['.css'],
       extract: true,
       minimize: true,
     }),
-    copy({
-      targets: [
-        { src: 'src/bar-chart/index.html', dest: `${OUTPUT}/bar-chart` },
-        { src: 'src/scatterplot/index.html', dest: `${OUTPUT}/scatterplot` },
-      ],
-    }),
+
+    // copy({
+    //   targets: [
+    //     { src: 'src/bar-chart/index.html', dest: `${OUTPUT}/bar-chart/` },
+    //     { src: 'src/scatterplot/index.html', dest: `${OUTPUT}/scatterplot/` },
+    //   ],
+    // }),
     ...SERVER,
   ],
 };
