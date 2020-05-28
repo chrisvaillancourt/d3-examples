@@ -1,9 +1,11 @@
-import './style.css';
+import './scatterplot.css';
+console.log('a scatter plot!');
 async function drawScatter() {
   console.log('drawing scatter plot');
-  // your code goes here
+
   // step 1) access chart data
-  const data = await d3.json('./data/my_weather_data.json');
+  const data = await d3.json('../data/nyc_weather_data.json');
+  console.log(data);
   // create accessor functions
   function xAccessor(d) {
     return d.dewPoint;
@@ -63,7 +65,6 @@ async function drawScatter() {
   });
 
   // step 4) Create scales
-
 
   function createScale({ chartData, dataAccessor, range, isNice }) {
     const scale = d3
