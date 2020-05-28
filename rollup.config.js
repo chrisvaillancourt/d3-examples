@@ -10,16 +10,19 @@ import babel from '@rollup/plugin-babel';
 // Builds based on environment
 // const OUTPUT =
 //   process.env.BUILD === 'development' ? 'output/dev' : 'output/dist';
+
 const OUTPUT = 'dist';
 const SOURCEMAP = process.env.BUILD === 'development' ? 'inline' : false;
 const MINIFY = process.env.BUILD === 'development' ? null : terser();
 const SERVER =
   process.env.BUILD === 'development'
-    ? [serve(OUTPUT), livereload(OUTPUT)]
+    ? [serve(OUTPUT), livereload({ watch: OUTPUT })]
     : [];
+const minifyCss = process.env.BUILD === 'development' ? false : true;
 
 export default {
   input: {
+    index: './src/index.js',
     'scatterplot/scatterplot': './src/scatterplot/scatterplot.js',
     'histogram/histogram': './src/histogram/histogram.js',
   },
@@ -37,13 +40,17 @@ export default {
     MINIFY,
     styles({
       mode: 'extract',
-      minimize: false,
+      minimize: minifyCss,
       url: {
         publicPath: '../assets/',
       },
     }),
     copy({
       targets: [
+        {
+          src: 'src/index.html',
+          dest: `dist/`,
+        },
         {
           src: 'src/scatterplot/index.html',
           dest: `dist/scatterplot/`,
@@ -55,25 +62,6 @@ export default {
         { src: 'src/data', dest: 'dist/' },
       ],
     }),
-    // ...SERVER,
+    ...SERVER,
   ],
 };
-// export default [{
-//   input: 'main-a.js',
-//   output: {
-//     file: 'dist/bundle-a.js',
-//     format: 'cjs'
-//   }
-// }, {
-//   input: 'main-b.js',
-//   output: [
-//     {
-//       file: 'dist/bundle-b1.js',
-//       format: 'cjs'
-//     },
-//     {
-//       file: 'dist/bundle-b2.js',
-//       format: 'es'
-//     }
-//   ]
-// }];

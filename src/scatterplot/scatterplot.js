@@ -2,8 +2,8 @@ import './scatterplot.css';
 
 async function drawScatter() {
   // step 1) access chart data
-  const data = await d3.json('../data/nyc_weather_data.json');
-  console.log(data);
+  let data = await d3.json('../data/nyc_weather_data.json');
+  data = [];
   // create accessor functions
   function xAccessor(d) {
     return d.dewPoint;
