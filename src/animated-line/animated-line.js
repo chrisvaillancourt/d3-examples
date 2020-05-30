@@ -1,4 +1,5 @@
 import './animated-line.css';
+import * as d3 from 'd3';
 async function drawLineChart() {
   // 1. Access data
   let dataset = await d3.json('../data/nyc_weather_data.json');

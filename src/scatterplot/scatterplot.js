@@ -1,5 +1,5 @@
 import './scatterplot.css';
-
+import * as d3 from 'd3';
 async function drawScatter() {
   // step 1) access chart data
   let data = await d3.json('../data/nyc_weather_data.json');
