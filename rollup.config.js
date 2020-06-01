@@ -26,6 +26,7 @@ export default {
     'scatterplot/scatterplot': './src/scatterplot/scatterplot.js',
     'histogram/histogram': './src/histogram/histogram.js',
     'animated-line/animated-line': './src/animated-line/animated-line.js',
+    'line/line': './src/line/line.js',
   },
   output: {
     dir: OUTPUT,
@@ -64,6 +65,10 @@ export default {
         {
           src: 'src/animated-line/index.html',
           dest: `dist/animated-line/`,
+        },
+        {
+          src: 'src/line/index.html',
+          dest: `dist/line/`,
         },
       ],
     }),
