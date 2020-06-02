@@ -1,6 +1,6 @@
 import copy from 'rollup-plugin-copy';
 import del from 'rollup-plugin-delete';
-import livereload from 'rollup-plugin-livereload';
+import browsersync from 'rollup-plugin-browsersync';
 import styles from 'rollup-plugin-styles';
 import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
@@ -16,7 +16,7 @@ const SOURCEMAP = process.env.BUILD === 'development' ? 'inline' : false;
 const MINIFY = process.env.BUILD === 'development' ? null : terser();
 const SERVER =
   process.env.BUILD === 'development'
-    ? [serve(OUTPUT), livereload({ watch: OUTPUT })]
+    ? [serve(OUTPUT), browsersync({ server: OUTPUT })]
     : [];
 const minifyCss = process.env.BUILD === 'development' ? false : true;
 
@@ -29,6 +29,7 @@ export default {
     'line/line': './src/line/line.js',
     'interactive-scatter/interactive-scatter':
       './src/interactive-scatter/interactive-scatter.js',
+    'svg-world-map/svg-world-map': './src/svg-world-map/svg-world-map.js',
   },
   output: {
     dir: OUTPUT,
@@ -75,6 +76,10 @@ export default {
         {
           src: 'src/interactive-scatter/index.html',
           dest: `dist/interactive-scatter/`,
+        },
+        {
+          src: 'src/svg-world-map/index.html',
+          dest: 'dist/svg-world-map/',
         },
       ],
     }),
