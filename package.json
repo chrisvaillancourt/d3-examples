@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup --config rollup.config.js --environment BUILD:production",
-    "start": "rollup --config rollup.config.js --watch --environment BUILD:development",
+    "serve": "rollup --config rollup.config.js --watch --environment BUILD:development",
     "deploy": "npm run build && gh-pages -d dist/"
   },
   "repository": {
