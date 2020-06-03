@@ -10,3 +10,4 @@ https://chrisvaillancourt.github.io/d3-examples/
 - use modular d3 imports
 - add more charts
 - add styling to gallery home page
+- fix bug in svg legend text
