@@ -167,8 +167,7 @@ async function createMap() {
     .attr('class', 'legend-value')
     .attr('x', legendWidth / 2 + 10)
     .attr('y', legendHeight / 2)
-    .text(`${format('.1f')(maxChange)}%`)
-    .style('text-anchor', 'end');
+    .text(`${format('.1f')(maxChange)}%`);
 
   var legendValueLeft = legendGroup
     .append('text')
