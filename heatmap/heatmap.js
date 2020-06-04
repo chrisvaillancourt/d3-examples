@@ -1,0 +1,1 @@
+import{j as a}from"../json-3227c80e.js";import{a as t,t as e}from"../defaultLocale-1a6cbc98.js";console.time("draw heatmap"),async function(){var n=await a("../data/nyc_weather_data.json"),o=t("%Y-%m-%d");function r(a){return o(a.date)}n=n.sort((function(a,t){return r(a)-r(t)})),e("%-e"),e("%-w"),r(n[0]),Math.ceil(n.length/7)}().then(()=>console.timeEnd("draw heatmap"));
