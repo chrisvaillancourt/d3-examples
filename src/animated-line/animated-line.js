@@ -1,13 +1,21 @@
 import './animated-line.css';
 import * as d3 from 'd3';
+import { json } from 'd3-fetch';
+import { timeParse, timeFormat } from 'd3-time-format';
+import { select } from 'd3-selection';
+import { scaleLinear, scaleTime } from 'd3-scale';
+import { extent } from 'd3-array';
+import { line } from 'd3-shape';
+import { axisLeft, axisBottom } from 'd3-axis';
+import { timeDay } from 'd3-time';
 async function drawLineChart() {
   // 1. Access data
-  let dataset = await d3.json('../data/nyc_weather_data.json');
+  let dataset = await json('../data/nyc_weather_data.json');
 
   // 2. Create chart dimensions
 
   const yAccessor = (d) => d.temperatureMax;
-  const dateParser = d3.timeParse('%Y-%m-%d');
+  const dateParser = timeParse('%Y-%m-%d');
   const xAccessor = (d) => dateParser(d.date);
   dataset = dataset.sort((a, b) => xAccessor(a) - xAccessor(b)).slice(0, 100);
 
@@ -28,8 +36,7 @@ async function drawLineChart() {
 
   // 3. Draw canvas
 
-  const wrapper = d3
-    .select('#wrapper')
+  const wrapper = select('#wrapper')
     .append('svg')
     .attr('width', dimensions.width)
     .attr('height', dimensions.height);
@@ -69,9 +76,8 @@ async function drawLineChart() {
   const drawLine = (dataset) => {
     // 4. Create scales
 
-    const yScale = d3
-      .scaleLinear()
-      .domain(d3.extent(dataset, yAccessor))
+    const yScale = scaleLinear()
+      .domain(extent(dataset, yAccessor))
       .range([dimensions.boundedHeight, 0]);
 
     const freezingTemperaturePlacement = yScale(32);
@@ -82,17 +88,15 @@ async function drawLineChart() {
       .attr('y', freezingTemperaturePlacement)
       .attr('height', dimensions.boundedHeight - freezingTemperaturePlacement);
 
-    const xScale = d3
-      .scaleTime()
+    const xScale = scaleTime()
       // we need to ignore the first two data points when creating our xscale
       // otherwise we see the old data removed before the line shifts
-      .domain(d3.extent(dataset.slice(2), xAccessor))
+      .domain(extent(dataset.slice(2), xAccessor))
       .range([0, dimensions.boundedWidth]);
 
     // 5. Draw data
 
-    const lineGenerator = d3
-      .line()
+    const lineGenerator = line()
       .x((d) => xScale(xAccessor(d)))
       .y((d) => yScale(yAccessor(d)));
     // we need to calculate how far we need to shift the line in order to animate it
@@ -100,7 +104,7 @@ async function drawLineChart() {
     var pixelsBetweenLastPoints =
       xScale(xAccessor(lastTwoPoints[1])) - xScale(xAccessor(lastTwoPoints[0]));
 
-    const line = bounds
+    const linePath = bounds
       .select('.line')
       .attr('d', lineGenerator(dataset))
       // instantly shift the line to match it's old position
@@ -113,11 +117,11 @@ async function drawLineChart() {
 
     // 6. Draw peripherals
 
-    const yAxisGenerator = d3.axisLeft().scale(yScale);
+    const yAxisGenerator = axisLeft().scale(yScale);
 
     const yAxis = bounds.select('.y-axis').call(yAxisGenerator);
 
-    const xAxisGenerator = d3.axisBottom().scale(xScale);
+    const xAxisGenerator = axisBottom().scale(xScale);
 
     const xAxis = bounds
       .select('.x-axis')
@@ -136,12 +140,13 @@ async function drawLineChart() {
 
   function generateNewDataPoint(dataset) {
     const lastDataPoint = dataset[dataset.length - 1];
-    const nextDay = d3.timeDay.offset(xAccessor(lastDataPoint), 1);
+    const nextDay = timeDay.offset(xAccessor(lastDataPoint), 1);
 
     return {
-      date: d3.timeFormat('%Y-%m-%d')(nextDay),
+      date: timeFormat('%Y-%m-%d')(nextDay),
       temperatureMax: yAccessor(lastDataPoint) + (Math.random() * 6 - 3),
     };
   }
 }
-drawLineChart();
+console.time('draw line');
+drawLineChart().then(() => console.timeEnd('draw line'));
