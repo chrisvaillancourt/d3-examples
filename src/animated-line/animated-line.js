@@ -1,5 +1,4 @@
 import './animated-line.css';
-import * as d3 from 'd3';
 import { json } from 'd3-fetch';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { select } from 'd3-selection';
@@ -8,6 +7,7 @@ import { extent } from 'd3-array';
 import { line } from 'd3-shape';
 import { axisLeft, axisBottom } from 'd3-axis';
 import { timeDay } from 'd3-time';
+import { transition } from 'd3-transition';
 async function drawLineChart() {
   // 1. Access data
   let dataset = await json('../data/nyc_weather_data.json');
