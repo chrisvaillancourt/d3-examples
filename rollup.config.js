@@ -30,6 +30,7 @@ export default {
     'interactive-scatter/interactive-scatter':
       './src/interactive-scatter/interactive-scatter.js',
     'svg-world-map/svg-world-map': './src/svg-world-map/svg-world-map.js',
+    'heatmap/heatmap': 'src/heatmap/heatmap.js',
   },
   output: {
     dir: OUTPUT,
@@ -80,6 +81,10 @@ export default {
         {
           src: 'src/svg-world-map/index.html',
           dest: 'dist/svg-world-map/',
+        },
+        {
+          src: 'src/heatmap/index.html',
+          dest: 'dist/heatmap/',
         },
       ],
     }),
