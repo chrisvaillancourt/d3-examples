@@ -1,3 +1,6 @@
+import '../assets/styles/new.css';
+import '../assets/styles/base.css';
+import '../assets/styles/breadcrumb-nav.css';
 import './svg-world-map.css';
 import { json, csv } from 'd3-fetch';
 import { geoEqualEarth, geoPath, geoGraticule10 } from 'd3-geo';
