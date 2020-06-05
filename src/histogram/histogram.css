@@ -4,6 +4,8 @@
   position: relative;
   display: flex;
   justify-content: center;
+  padding: 5em 2em;
+  font-family: sans-serif;
 }
 
 .bin rect {
@@ -29,11 +31,6 @@
   fill: black;
   font-size: 1.4em;
   text-transform: capitalize;
-}
-
-body {
-  padding: 5em 2em;
-  font-family: sans-serif;
 }
 
 .tooltip {
