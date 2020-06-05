@@ -1,2 +1,4 @@
 import './style.css';
-console.log('at base route');
+import './assets/styles/new.css';
+import './assets/styles/base.css';
+console.log('Welcome!');
