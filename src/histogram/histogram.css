@@ -2,6 +2,8 @@
 .wrapper {
   /* set position on the wrapper to accommodate tooltip position */
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .bin rect {
@@ -30,8 +32,6 @@
 }
 
 body {
-  /* display: flex; */
-  /* justify-content: center; */
   padding: 5em 2em;
   font-family: sans-serif;
 }
