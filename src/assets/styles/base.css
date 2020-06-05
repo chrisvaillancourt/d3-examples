@@ -12,3 +12,7 @@ html {
 *:after {
   box-sizing: inherit;
 }
+.flex {
+  display: flex;
+  justify-content: center;
+}
