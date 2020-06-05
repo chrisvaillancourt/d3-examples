@@ -12,31 +12,3 @@ html {
 *:after {
   box-sizing: inherit;
 }
-
-.breadcrumbs {
-  padding: 0;
-  font-size: 84%;
-}
-.breadcrumbs li {
-  display: inline-block;
-}
-.breadcrumbs li::after {
-  content: '>';
-  font-size: 70%;
-  padding: 0 0.5em;
-  font-family: georgia, serif;
-}
-.breadcrumbs li:last-child::after {
-  content: '';
-}
-.breadcrumbs a {
-  color: black;
-  text-underline-offset: 3px;
-}
-.breadcrumbs a:hover {
-  text-decoration: underline;
-  text-decoration-color: yellow;
-  text-decoration-thickness: 1.1em;
-  text-underline-offset: -0.9em;
-  text-decoration-skip-ink: none;
-}
