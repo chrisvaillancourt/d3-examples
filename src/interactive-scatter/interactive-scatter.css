@@ -27,10 +27,6 @@ body {
   padding: 3em 1em;
   font-family: sans-serif;
 }
-.flex {
-  display: flex;
-  justify-content: center;
-}
 
 .tooltip {
   opacity: 0;
