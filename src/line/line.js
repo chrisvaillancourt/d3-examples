@@ -1,3 +1,6 @@
+import '../assets/styles/new.css';
+import '../assets/styles/base.css';
+import '../assets/styles/breadcrumb-nav.css';
 import './line.css';
 import * as d3 from 'd3';
 
