@@ -152,7 +152,7 @@ async function createMap() {
       return d;
     })
     .attr('offset', function createIndexOffset(d, i) {
-      return `${(i * 100) / colorScaleArrayLength - 1}%`;
+      return `${(i * 100) / (colorScaleArrayLength - 1)}%`;
     });
 
   var legendGradient = legendGroup
