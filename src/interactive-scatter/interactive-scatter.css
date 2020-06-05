@@ -1,7 +1,5 @@
 .wrapper {
   position: relative;
-  display: flex;
-  justify-content: center;
 }
 
 .x-axis-label {
@@ -28,6 +26,10 @@ circle {
 body {
   padding: 3em 1em;
   font-family: sans-serif;
+}
+.flex {
+  display: flex;
+  justify-content: center;
 }
 
 .tooltip {
