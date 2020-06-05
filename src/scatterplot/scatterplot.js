@@ -1,3 +1,6 @@
+import '../assets/styles/new.css';
+import '../assets/styles/base.css';
+import '../assets/styles/breadcrumb-nav.css';
 import './scatterplot.css';
 import * as d3 from 'd3';
 async function drawScatter() {
