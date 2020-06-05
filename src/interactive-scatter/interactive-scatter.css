@@ -1,5 +1,7 @@
 .wrapper {
   position: relative;
+  padding: 3em 1em;
+  font-family: sans-serif;
 }
 
 .x-axis-label {
@@ -21,11 +23,6 @@ circle {
 
 .voronoi {
   fill: transparent;
-}
-
-body {
-  padding: 3em 1em;
-  font-family: sans-serif;
 }
 
 .tooltip {
