@@ -1,5 +1,7 @@
 .wrapper {
   position: relative;
+  padding: 5em 1em;
+  font-family: sans-serif;
 }
 
 .freezing {
@@ -21,11 +23,6 @@
 
 .listening-rect {
   fill: transparent;
-}
-
-body {
-  padding: 5em 1em;
-  font-family: sans-serif;
 }
 
 .tooltip {
