@@ -1,3 +1,29 @@
+@font-face {
+  font-family: 'Inter var';
+  font-display: swap;
+  font-weight: 100 900;
+  font-style: normal;
+  src: url('./assets/fonts/Inter.var.woff2') format('woff2');
+}
+html {
+  box-sizing: border-box;
+  font-size: 120%;
+  line-height: 1.5;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+.flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+body {
+  font-family: 'Inter var', sans-serif;
+}
+
 .navbar {
   gap: 1rem;
   margin: 4em 0;
