@@ -1,7 +1,4 @@
 .navbar {
-  /* display: flex; */
-  /* flex-wrap: wrap; */
-  /* width: 25vw; */
   gap: 1rem;
   margin: 4em 0;
   padding: 0.25em 1em;
@@ -11,11 +8,9 @@
 }
 .navbar a {
   text-decoration: none;
-  /* color: #fff; */
 }
 .navbar a:hover {
   text-decoration: underline;
-  /* text-decoration-color: orange; */
   text-decoration-thickness: 3px;
   text-underline-offset: 6px;
 }
