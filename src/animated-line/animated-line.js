@@ -1,4 +1,8 @@
+import '../assets/styles/new.css';
+import '../assets/styles/base.css';
+import '../assets/styles/breadcrumb-nav.css';
 import './animated-line.css';
+
 import { json } from 'd3-fetch';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { select } from 'd3-selection';
