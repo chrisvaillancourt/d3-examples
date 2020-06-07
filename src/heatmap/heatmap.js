@@ -175,7 +175,7 @@ async function createHeatmap() {
     'temperatureMax',
   ];
 
-  drawDays(metrics[0]);
+  drawDays(metrics[metrics.length - 1]);
 
   // var btn = select('#heading').append('button').text('Change Metric');
 
@@ -192,7 +192,10 @@ async function createHeatmap() {
     .enter()
     .append('option')
     .text((d) => d)
-    .attr('value', (d) => d);
+    .attr('value', (d) => d)
+    .property('selected', function (d) {
+      return d == 'temperatureMax' ? true : null;
+    });
   dropDown.node().addEventListener('change', handleChange);
 
   function handleChange(e) {
