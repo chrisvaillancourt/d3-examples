@@ -31,6 +31,8 @@ export default {
       './src/interactive-scatter/interactive-scatter.js',
     'svg-world-map/svg-world-map': './src/svg-world-map/svg-world-map.js',
     'heatmap/heatmap': 'src/heatmap/heatmap.js',
+    'marginal-histogram/marginal-histogram':
+      'src/marginal-histogram/marginal-histogram.js',
   },
   output: {
     dir: OUTPUT,
@@ -85,6 +87,10 @@ export default {
         {
           src: 'src/heatmap/index.html',
           dest: 'dist/heatmap/',
+        },
+        {
+          src: 'src/marginal-histogram/index.html',
+          dest: 'dist/marginal-histogram/',
         },
       ],
     }),
