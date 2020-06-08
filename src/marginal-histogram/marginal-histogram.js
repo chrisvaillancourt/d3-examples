@@ -3,15 +3,15 @@ import '../assets/styles/base.css';
 import '../assets/styles/breadcrumb-nav.css';
 import './marginal-histogram.css';
 import { json } from 'd3-fetch';
-import { min, extent } from 'd3-array';
-import { select, selectAll, classed } from 'd3-selection';
+import { min, extent, histogram } from 'd3-array';
+import { select, selectAll } from 'd3-selection';
 import { scaleLinear, scaleSequential } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { Delaunay } from 'd3-delaunay';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { interpolateRainbow } from 'd3-scale-chromatic';
-
+import { area, curveBasis } from 'd3-shape';
 console.time('render chart');
 async function drawScatter() {
   // 1. Access data
@@ -30,22 +30,28 @@ async function drawScatter() {
   }
   // 2. Create chart dimensions
 
-  const width = min([window.innerWidth * 0.9, window.innerHeight * 0.9]);
-  let dimensions = {
-    width: width,
-    height: width,
+  var dimensions = {
     margin: {
-      top: 10,
-      right: 10,
+      top: 90,
+      right: 90,
       bottom: 50,
       left: 50,
     },
+    get width() {
+      return (window.innerWidth - this.margin.left - this.margin.right) * 0.95;
+    },
+    get boundedWidth() {
+      return this.width - this.margin.left - this.margin.right;
+    },
+    get height() {
+      return this.width;
+    },
+    get boundedHeight() {
+      return this.height - this.margin.top - this.margin.bottom;
+    },
+    histogramMargin: 10,
+    histogramHeight: 70,
   };
-  dimensions.boundedWidth =
-    dimensions.width - dimensions.margin.left - dimensions.margin.right;
-  dimensions.boundedHeight =
-    dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
-
   // 3. Draw canvas
 
   const wrapper = select('#wrapper')
@@ -112,7 +118,108 @@ async function drawScatter() {
         return colorScale(colorAccessor(d));
       });
   };
+  function drawHistogramTemp(data) {
+    var topHistogramGenerator = histogram()
+      .domain(xScale.domain())
+      .value(xAccessor)
+      .thresholds(20);
+
+    var topHistogramBins = topHistogramGenerator(data);
+
+    // deviating from the rules and creating our scale here
+    var topHistogramYScale = scaleLinear()
+      .domain(
+        extent(topHistogramBins, function getDataLength(d) {
+          return d.length;
+        })
+      )
+      .range([dimensions.histogramHeight, 0]);
+    var topHistogramBounds = bounds
+      .append('g')
+      .attr(
+        'transform',
+        `translate(0, ${
+          -dimensions.histogramHeight - dimensions.histogramMargin
+        })`
+      );
+    // draw line path
+    // Create path's d attribute string with area()
+    var topHistogramLineGenerator = area()
+      .x(function calcLineX(d) {
+        return xScale((d.x0 + d.x1) / 2);
+      })
+      .y0(dimensions.histogramHeight)
+      .y1(function calcLineY(d) {
+        return topHistogramYScale(d.length);
+      })
+      .curve(curveBasis);
+    var topHistogramChart = topHistogramBounds
+      .append('path')
+      .attr('d', function generatePath(d) {
+        return topHistogramGenerator(topHistogramBins);
+      })
+      .attr('class', 'histogram-area');
+  }
+  function drawHistogram({
+    data,
+    scale,
+    accessor,
+    dimensions,
+    histogramClass,
+    chartTransform,
+    chartBounds,
+    pathClass,
+  }) {
+    var histogramGenerator = histogram()
+      .domain(scale.domain())
+      .value(accessor)
+      .thresholds(20);
+    var histogramBins = histogramGenerator(data);
+    var histogramYScale = scaleLinear()
+      .domain(extent(histogramBins, (d) => d.length))
+      .range([dimensions.histogramHeight, 0]);
+    var histogramBounds = chartBounds
+      .append('g')
+      .attr('class', histogramClass)
+      .style('transform', chartTransform);
+    var histogramLineGenerator = area()
+      .x((d) => scale((d.x0 + d.x1) / 2))
+      .y0(dimensions.histogramHeight)
+      .y1((d) => histogramYScale(d.length))
+      .curve(curveBasis);
+    var histogramElement = histogramBounds
+      .append('path')
+      .attr('d', (d) => histogramLineGenerator(histogramBins))
+      .attr('class', pathClass);
+  }
+
   drawDots(dataset);
+  // drawHistogram(dataset);
+  drawHistogram({
+    data: dataset,
+    scale: yScale,
+    accessor: yAccessor,
+    chartBounds: bounds,
+    dimensions,
+    histogramClass: 'top-histogram',
+    pathClass: 'histogram-area',
+    chartTransform: `translate(
+        ${dimensions.boundedWidth + dimensions.histogramMargin}px, -${
+      dimensions.histogramHeight
+    }px) rotate(90deg)`,
+  });
+  drawHistogram({
+    data: dataset,
+    scale: xScale,
+    accessor: xAccessor,
+    chartBounds: bounds,
+    dimensions,
+    histogramClass: 'right-histogram',
+    pathClass: 'histogram-area',
+    chartTransform: `translate(0px, ${
+      -dimensions.histogramHeight - dimensions.histogramMargin
+    }px)`,
+  });
   // create a new Delaunay triangulation for interaction
   var delaunay = Delaunay.from(
     dataset,
@@ -164,7 +271,7 @@ async function drawScatter() {
     .attr('class', 'y-axis-label')
     .attr('x', -dimensions.boundedHeight / 2)
     .attr('y', -dimensions.margin.left + 10)
-    .text('Maximum Temperature (&deg;F)');
+    .html('Maximum Temperature (&deg;F)');
 
   // 7. Set up interactions
   var tooltip = select('#tooltip');
