@@ -314,4 +314,6 @@ async function drawScatter() {
     selectAll('.tooltipDot').remove();
   }
 }
-drawScatter().then(() => console.timeEnd('render chart'));
+drawScatter()
+  .then(() => console.timeEnd('render chart'))
+  .catch(console.error);
