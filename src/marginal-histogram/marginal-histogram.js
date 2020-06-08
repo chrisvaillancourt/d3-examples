@@ -19,9 +19,12 @@ async function drawScatter() {
   // 1. Access data
 
   const dataset = await json('../data/nyc_weather_data.json');
-
-  const xAccessor = (d) => d.temperatureMin;
-  const yAccessor = (d) => d.temperatureMax;
+  function xAccessor(d) {
+    return d.temperatureMin;
+  }
+  function yAccessor(d) {
+    return d.temperatureMax;
+  }
   // use a standard date to normalize our data with.
   // We'll do this in-case our data spans multiple years
   // allowing us to color the dots by the day/month
