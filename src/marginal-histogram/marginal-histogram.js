@@ -12,6 +12,8 @@ import { Delaunay } from 'd3-delaunay';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { interpolateRainbow } from 'd3-scale-chromatic';
 import { area, curveBasis } from 'd3-shape';
+import { drawHistogram } from '../utils/drawHistogram';
+import { createDimensionsObj } from '../utils/createDimensions';
 console.time('render chart');
 async function drawScatter() {
   // 1. Access data
@@ -29,29 +31,13 @@ async function drawScatter() {
     return parseDate(d.date).setYear(colorScaleYear);
   }
   // 2. Create chart dimensions
+  var dimensions = createDimensionsObj({
+    customDimensions: {
+      histogramMargin: 10,
+      histogramHeight: 70,
+    },
+  });
 
-  var dimensions = {
-    margin: {
-      top: 90,
-      right: 90,
-      bottom: 50,
-      left: 50,
-    },
-    get width() {
-      return (window.innerWidth - this.margin.left - this.margin.right) * 0.95;
-    },
-    get boundedWidth() {
-      return this.width - this.margin.left - this.margin.right;
-    },
-    get height() {
-      return this.width;
-    },
-    get boundedHeight() {
-      return this.height - this.margin.top - this.margin.bottom;
-    },
-    histogramMargin: 10,
-    histogramHeight: 70,
-  };
   // 3. Draw canvas
 
   const wrapper = select('#wrapper')
@@ -118,83 +104,9 @@ async function drawScatter() {
         return colorScale(colorAccessor(d));
       });
   };
-  function drawHistogramTemp(data) {
-    var topHistogramGenerator = histogram()
-      .domain(xScale.domain())
-      .value(xAccessor)
-      .thresholds(20);
-
-    var topHistogramBins = topHistogramGenerator(data);
-
-    // deviating from the rules and creating our scale here
-    var topHistogramYScale = scaleLinear()
-      .domain(
-        extent(topHistogramBins, function getDataLength(d) {
-          return d.length;
-        })
-      )
-      .range([dimensions.histogramHeight, 0]);
-    var topHistogramBounds = bounds
-      .append('g')
-      .attr(
-        'transform',
-        `translate(0, ${
-          -dimensions.histogramHeight - dimensions.histogramMargin
-        })`
-      );
-    // draw line path
-    // Create path's d attribute string with area()
-    var topHistogramLineGenerator = area()
-      .x(function calcLineX(d) {
-        return xScale((d.x0 + d.x1) / 2);
-      })
-      .y0(dimensions.histogramHeight)
-      .y1(function calcLineY(d) {
-        return topHistogramYScale(d.length);
-      })
-      .curve(curveBasis);
-    var topHistogramChart = topHistogramBounds
-      .append('path')
-      .attr('d', function generatePath(d) {
-        return topHistogramGenerator(topHistogramBins);
-      })
-      .attr('class', 'histogram-area');
-  }
-  function drawHistogram({
-    data,
-    scale,
-    accessor,
-    dimensions,
-    histogramClass,
-    chartTransform,
-    chartBounds,
-    pathClass,
-  }) {
-    var histogramGenerator = histogram()
-      .domain(scale.domain())
-      .value(accessor)
-      .thresholds(20);
-    var histogramBins = histogramGenerator(data);
-    var histogramYScale = scaleLinear()
-      .domain(extent(histogramBins, (d) => d.length))
-      .range([dimensions.histogramHeight, 0]);
-    var histogramBounds = chartBounds
-      .append('g')
-      .attr('class', histogramClass)
-      .style('transform', chartTransform);
-    var histogramLineGenerator = area()
-      .x((d) => scale((d.x0 + d.x1) / 2))
-      .y0(dimensions.histogramHeight)
-      .y1((d) => histogramYScale(d.length))
-      .curve(curveBasis);
-    var histogramElement = histogramBounds
-      .append('path')
-      .attr('d', (d) => histogramLineGenerator(histogramBins))
-      .attr('class', pathClass);
-  }
 
   drawDots(dataset);
-  // drawHistogram(dataset);
+
   drawHistogram({
     data: dataset,
     scale: yScale,
