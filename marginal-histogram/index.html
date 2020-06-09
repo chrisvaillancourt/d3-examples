@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marginal Histogram</title>
+    <script type="module" src="marginal-histogram.js"></script>
+    <link rel="stylesheet" href="marginal-histogram.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>Marginal Histogram</h1>
+    </header>
+    <nav role="breadcrumb">
+      <ol class="breadcrumbs">
+        <li><a href="../">Home</a></li>
+        <li>Marginal Histogram</li>
+      </ol>
+    </nav>
+    <div class="flex">
+      <div id="wrapper" class="wrapper">
+        <div id="tooltip" class="tooltip">
+          <div class="tooltip-date">
+            <span id="date"></span>
+          </div>
+          <div class="tooltip-temperature">
+            <span id="min-temperature"></span>&deg;F -
+            <span id="max-temperature"></span>&deg;F
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
