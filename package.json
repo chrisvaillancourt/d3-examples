@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rollup --config rollup.config.js --environment BUILD:production",
     "serve": "rollup --config rollup.config.js --watch --environment BUILD:development",
-    "deploy": "npm run build && gh-pages -d dist/"
+    "deploy": "npm run build && gh-pages -d dist/",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
