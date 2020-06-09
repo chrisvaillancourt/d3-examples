@@ -1,4 +1,4 @@
-function createDimensionsObj({ customDimensions = {} } = {}) {
+function createDimensions({ customDimensions = {} } = {}) {
   // Used to create a dimensions data obj for creating chart dimensions.
   // Pass customDimesions to return an obj with extra key/value pairs.
   return {
@@ -24,4 +24,4 @@ function createDimensionsObj({ customDimensions = {} } = {}) {
   };
 }
 
-export { createDimensionsObj };
+export { createDimensions };

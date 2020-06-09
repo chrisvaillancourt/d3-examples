@@ -13,7 +13,7 @@ import { timeFormat, timeParse } from 'd3-time-format';
 import { interpolateRainbow } from 'd3-scale-chromatic';
 import { area, curveBasis } from 'd3-shape';
 import { drawHistogram } from '../utils/drawHistogram';
-import { createDimensionsObj } from '../utils/createDimensions';
+import { createDimensions } from '../utils/createDimensions';
 console.time('render chart');
 async function drawScatter() {
   // 1. Access data
@@ -34,7 +34,7 @@ async function drawScatter() {
     return parseDate(d.date).setYear(colorScaleYear);
   }
   // 2. Create chart dimensions
-  var dimensions = createDimensionsObj({
+  var dimensions = createDimensions({
     customDimensions: {
       histogramMargin: 10,
       histogramHeight: 70,
