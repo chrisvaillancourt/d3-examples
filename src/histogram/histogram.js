@@ -3,12 +3,18 @@ import '../assets/styles/new.css';
 import '../assets/styles/base.css';
 import '../assets/styles/breadcrumb-nav.css';
 import './histogram.css';
-import * as d3 from 'd3';
+
+import { json } from 'd3-fetch';
+import { select } from 'd3-selection';
+import { scaleLinear } from 'd3-scale';
+import { extent, max, histogram, mean } from 'd3-array';
+import { axisBottom } from 'd3-axis';
+import { format } from 'd3-format';
 
 async function drawBars() {
   // 1. Access data
 
-  const dataset = await d3.json('../data/nyc_weather_data.json');
+  const dataset = await json('../data/nyc_weather_data.json');
 
   // 2. Create chart dimensions
 
@@ -30,8 +36,7 @@ async function drawBars() {
 
   // 3. Draw canvas
 
-  const wrapper = d3
-    .select('#wrapper')
+  const wrapper = select('#wrapper')
     .append('svg')
     .attr('width', dimensions.width)
     .attr('height', dimensions.height);
@@ -58,23 +63,20 @@ async function drawBars() {
 
   // 4. Create scales
 
-  const xScale = d3
-    .scaleLinear()
-    .domain(d3.extent(dataset, metricAccessor))
+  const xScale = scaleLinear()
+    .domain(extent(dataset, metricAccessor))
     .range([0, dimensions.boundedWidth])
     .nice();
 
-  const binsGenerator = d3
-    .histogram()
+  const binsGenerator = histogram()
     .domain(xScale.domain())
     .value(metricAccessor)
     .thresholds(12);
 
   const bins = binsGenerator(dataset);
 
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, d3.max(bins, yAccessor)])
+  const yScale = scaleLinear()
+    .domain([0, max(bins, yAccessor)])
     .range([dimensions.boundedHeight, 0])
     .nice();
 
@@ -99,21 +101,19 @@ async function drawBars() {
     .attr('x', (d) => xScale(d.x0) + barPadding)
     .attr('y', (d) => yScale(yAccessor(d)))
     .attr('height', (d) => dimensions.boundedHeight - yScale(yAccessor(d)))
-    .attr('width', (d) =>
-      d3.max([0, xScale(d.x1) - xScale(d.x0) - barPadding])
-    );
+    .attr('width', (d) => max([0, xScale(d.x1) - xScale(d.x0) - barPadding]));
 
-  const mean = d3.mean(dataset, metricAccessor);
+  const dataMean = mean(dataset, metricAccessor);
 
   const meanLine = bounds
     .selectAll('.mean')
-    .attr('x1', xScale(mean))
-    .attr('x2', xScale(mean))
+    .attr('x1', xScale(dataMean))
+    .attr('x2', xScale(dataMean))
     .attr('y1', -20)
     .attr('y2', dimensions.boundedHeight);
 
   // draw axes
-  const xAxisGenerator = d3.axisBottom().scale(xScale);
+  const xAxisGenerator = axisBottom().scale(xScale);
 
   const xAxis = bounds.select('.x-axis').call(xAxisGenerator);
 
@@ -124,10 +124,10 @@ async function drawBars() {
     .text('Humidity');
 
   // 7. Set up interactions
-  var tooltip = d3.select('#tooltip');
+  var tooltip = select('#tooltip');
 
   // create text formatting function
-  const formatHumidity = d3.format('.2f');
+  const formatHumidity = format('.2f');
   // standard convention is to use id's in JS and
   // classes in CSS
   binGroups
