@@ -3,13 +3,14 @@ import '../assets/styles/new.css';
 import '../assets/styles/base.css';
 import '../assets/styles/breadcrumb-nav.css';
 import './histogram.css';
-
 import { json } from 'd3-fetch';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { extent, max, histogram, mean } from 'd3-array';
 import { axisBottom } from 'd3-axis';
 import { format } from 'd3-format';
+
+console.time('render histogram');
 
 async function drawBars() {
   // 1. Access data
@@ -173,4 +174,8 @@ async function drawBars() {
     tooltip.style('opacity', 0);
   }
 }
-drawBars();
+drawBars()
+  .then(function endTimer() {
+    console.timeEnd('render histogram');
+  })
+  .catch(console.error);
