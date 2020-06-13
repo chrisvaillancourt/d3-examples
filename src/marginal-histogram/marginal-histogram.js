@@ -190,18 +190,22 @@ async function drawScatter() {
 
   // 7. Set up interactions
   var tooltip = select('#tooltip');
-  var formatHumidity = format('.2f');
-  var formatDewPoint = format('.2f');
+  var formatMetric = format('.2f');
   var dateParser = timeParse('%Y-%m-%d');
   var formatDate = timeFormat('%B %A %-d, %Y');
+
+  var hoverElementsGroup = bounds.append('g').attr('opacity', 0);
+
+  var dayDot = hoverElementsGroup.append('circle').attr('class', 'tooltip-dot');
+
   bounds
     .selectAll('.voronoi')
-    .on('mouseenter', handleMouseEnter)
-    .on('mouseleave', handleMouseLeave);
+    .on('mouseenter', handleVoronoiMouseEnter)
+    .on('mouseleave', handleVoronoiMouseLeave);
 
-  function handleMouseEnter(datum, index) {
-    tooltip.select('#humidity').text(formatHumidity(yAccessor(datum)));
-    tooltip.select('#dew-point').text(formatDewPoint(xAccessor(datum)));
+  function handleVoronoiMouseEnter(datum, index) {
+    tooltip.select('#min-temperature').text(formatMetric(xAccessor(datum)));
+    tooltip.select('#max-temperature').text(formatMetric(yAccessor(datum)));
     tooltip.select('#date').text(formatDate(dateParser(datum.date)));
     // get x and y value of the dot, offset by top and left margins
     const x = xScale(xAccessor(datum)) + dimensions.margin.left;
@@ -214,19 +218,17 @@ async function drawScatter() {
       )
       .style('opacity', 1);
 
-    // draw new dot to appear on top
-    var dayDot = bounds
-      .append('circle')
-      .attr('class', 'tooltipDot')
+    dayDot
       .attr('cx', xScale(xAccessor(datum)))
       .attr('cy', yScale(yAccessor(datum)))
-      .attr('r', 7)
-      .style('fill', 'maroon')
-      .style('pointer-events', 'none');
+      .attr('r', 7);
+    hoverElementsGroup.style('opacity', 1);
+    // draw new dot to appear on top
   }
-  function handleMouseLeave() {
+  function handleVoronoiMouseLeave() {
     tooltip.style('opacity', 0);
-    selectAll('.tooltipDot').remove();
+    hoverElementsGroup.style('opacity', 0);
+    // selectAll('.tooltip-dot').remove();
   }
 }
 drawScatter()
