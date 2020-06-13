@@ -9,7 +9,7 @@ import { scaleLinear } from 'd3-scale';
 import { extent, max, histogram, mean } from 'd3-array';
 import { axisBottom } from 'd3-axis';
 import { format } from 'd3-format';
-
+import { createDimensions } from '../utils/createDimensions';
 console.time('render histogram');
 
 async function drawBars() {
@@ -18,10 +18,9 @@ async function drawBars() {
   const dataset = await json('../data/nyc_weather_data.json');
 
   // 2. Create chart dimensions
-
-  const width = 600;
-  let dimensions = {
-    width: width,
+  const width = window.innerWidth < 600 ? window.innerWidth : 600;
+  var customDimensions = {
+    width,
     height: width * 0.6,
     margin: {
       top: 30,
@@ -30,10 +29,9 @@ async function drawBars() {
       left: 50,
     },
   };
-  dimensions.boundedWidth =
-    dimensions.width - dimensions.margin.left - dimensions.margin.right;
-  dimensions.boundedHeight =
-    dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+  var dimensions = createDimensions({
+    customDimensions,
+  });
 
   // 3. Draw canvas
 
