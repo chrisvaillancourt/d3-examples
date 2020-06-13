@@ -116,7 +116,7 @@ async function drawScatter() {
     accessor: yAccessor,
     chartBounds: bounds,
     dimensions,
-    histogramClass: 'top-histogram',
+    histogramClass: 'right-histogram',
     pathClass: 'histogram-area',
     chartTransform: `translate(
         ${dimensions.boundedWidth + dimensions.histogramMargin}px, -${
@@ -129,7 +129,7 @@ async function drawScatter() {
     accessor: xAccessor,
     chartBounds: bounds,
     dimensions,
-    histogramClass: 'right-histogram',
+    histogramClass: 'top-histogram',
     pathClass: 'histogram-area',
     chartTransform: `translate(0px, ${
       -dimensions.histogramHeight - dimensions.histogramMargin
