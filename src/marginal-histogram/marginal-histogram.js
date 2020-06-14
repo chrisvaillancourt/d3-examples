@@ -124,39 +124,6 @@ async function drawScatter() {
       return colorScale(colorAccessor(d));
     });
 
-  function drawHistogram({
-    data,
-    scale,
-    accessor,
-    dimensions,
-    histogramClass,
-    chartTransform,
-    chartBounds,
-    pathClass,
-  }) {
-    var histogramGenerator = histogram()
-      .domain(scale.domain())
-      .value(accessor)
-      .thresholds(20);
-    var histogramBins = histogramGenerator(data);
-    var histogramYScale = scaleLinear()
-      .domain(extent(histogramBins, (d) => d.length))
-      .range([dimensions.histogramHeight, 0]);
-    var histogramBounds = chartBounds
-      .append('g')
-      .attr('class', histogramClass)
-      .style('transform', chartTransform);
-    var histogramLineGenerator = area()
-      .x((d) => scale((d.x0 + d.x1) / 2))
-      .y0(dimensions.histogramHeight)
-      .y1((d) => histogramYScale(d.length))
-      .curve(curveBasis);
-    var histogramElement = histogramBounds
-      .append('path')
-      .attr('d', (d) => histogramLineGenerator(histogramBins))
-      .attr('class', pathClass);
-  }
-
   var rightHistogramGenerator = histogram()
     .domain(yScale.domain())
     .value(yAccessor)
@@ -185,32 +152,33 @@ async function drawScatter() {
     .attr('d', (d) => rightHistogramLineGenerator(rightHistogramBins))
     .attr('class', 'histogram-area');
 
-  // drawHistogram({
-  //   data: dataset,
-  //   scale: yScale,
-  //   accessor: yAccessor,
-  //   chartBounds: bounds,
-  //   dimensions,
-  //   histogramClass: 'right-histogram',
-  //   pathClass: 'histogram-area',
-  //   chartTransform: `translate(
-  //       ${dimensions.boundedWidth + dimensions.histogramMargin}px, -${
-  //     dimensions.histogramHeight
-  //   }px) rotate(90deg)`,
-  // });
+  var topHistogramGenerator = histogram()
+    .domain(xScale.domain())
+    .value(xAccessor)
+    .thresholds(20);
+  var topHistogramBins = topHistogramGenerator(dataset);
+  var topHistogramYScale = scaleLinear()
+    .domain(extent(topHistogramBins, (d) => d.length))
+    .range([dimensions.histogramHeight, 0]);
+  var topHistogramBounds = bounds
+    .append('g')
+    .attr('class', 'top-histogram')
+    .style(
+      'transform',
+      `translate(0px, ${
+        -dimensions.histogramHeight - dimensions.histogramMargin
+      }px)`
+    );
+  var topHistogramLineGenerator = area()
+    .x((d) => xScale((d.x0 + d.x1) / 2))
+    .y0(dimensions.histogramHeight)
+    .y1((d) => topHistogramYScale(d.length))
+    .curve(curveBasis);
+  var topHistogramElement = topHistogramBounds
+    .append('path')
+    .attr('d', (d) => topHistogramLineGenerator(topHistogramBins))
+    .attr('class', 'histogram-area');
 
-  drawHistogram({
-    data: dataset,
-    scale: xScale,
-    accessor: xAccessor,
-    chartBounds: bounds,
-    dimensions,
-    histogramClass: 'top-histogram',
-    pathClass: 'histogram-area',
-    chartTransform: `translate(0px, ${
-      -dimensions.histogramHeight - dimensions.histogramMargin
-    }px)`,
-  });
   // create a new Delaunay triangulation for interaction
   var delaunay = Delaunay.from(
     dataset,
