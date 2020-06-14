@@ -12,7 +12,7 @@ import { Delaunay } from 'd3-delaunay';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { interpolateRainbow } from 'd3-scale-chromatic';
 import { area, curveBasis } from 'd3-shape';
-import { drawHistogram } from '../utils/drawHistogram';
+// import { drawHistogram } from '../utils/drawHistogram';
 import { createDimensions } from '../utils/createDimensions';
 import { transition } from 'd3-transition';
 console.time('render chart');
@@ -124,19 +124,81 @@ async function drawScatter() {
       return colorScale(colorAccessor(d));
     });
 
-  drawHistogram({
-    data: dataset,
-    scale: yScale,
-    accessor: yAccessor,
-    chartBounds: bounds,
+  function drawHistogram({
+    data,
+    scale,
+    accessor,
     dimensions,
-    histogramClass: 'right-histogram',
-    pathClass: 'histogram-area',
-    chartTransform: `translate(
+    histogramClass,
+    chartTransform,
+    chartBounds,
+    pathClass,
+  }) {
+    var histogramGenerator = histogram()
+      .domain(scale.domain())
+      .value(accessor)
+      .thresholds(20);
+    var histogramBins = histogramGenerator(data);
+    var histogramYScale = scaleLinear()
+      .domain(extent(histogramBins, (d) => d.length))
+      .range([dimensions.histogramHeight, 0]);
+    var histogramBounds = chartBounds
+      .append('g')
+      .attr('class', histogramClass)
+      .style('transform', chartTransform);
+    var histogramLineGenerator = area()
+      .x((d) => scale((d.x0 + d.x1) / 2))
+      .y0(dimensions.histogramHeight)
+      .y1((d) => histogramYScale(d.length))
+      .curve(curveBasis);
+    var histogramElement = histogramBounds
+      .append('path')
+      .attr('d', (d) => histogramLineGenerator(histogramBins))
+      .attr('class', pathClass);
+  }
+
+  var rightHistogramGenerator = histogram()
+    .domain(yScale.domain())
+    .value(yAccessor)
+    .thresholds(20);
+  var rightHistogramBins = rightHistogramGenerator(dataset);
+  var rightHistogramYScale = scaleLinear()
+    .domain(extent(rightHistogramBins, (d) => d.length))
+    .range([dimensions.histogramHeight, 0]);
+  var rightHistogramBounds = bounds
+    .append('g')
+    .attr('class', 'right-histogram')
+    .style(
+      'transform',
+      `translate(
         ${dimensions.boundedWidth + dimensions.histogramMargin}px, -${
-      dimensions.histogramHeight
-    }px) rotate(90deg)`,
-  });
+        dimensions.histogramHeight
+      }px) rotate(90deg)`
+    );
+  var rightHistogramLineGenerator = area()
+    .x((d) => yScale((d.x0 + d.x1) / 2))
+    .y0(dimensions.histogramHeight)
+    .y1((d) => rightHistogramYScale(d.length))
+    .curve(curveBasis);
+  var rightHistogramElement = rightHistogramBounds
+    .append('path')
+    .attr('d', (d) => rightHistogramLineGenerator(rightHistogramBins))
+    .attr('class', 'histogram-area');
+
+  // drawHistogram({
+  //   data: dataset,
+  //   scale: yScale,
+  //   accessor: yAccessor,
+  //   chartBounds: bounds,
+  //   dimensions,
+  //   histogramClass: 'right-histogram',
+  //   pathClass: 'histogram-area',
+  //   chartTransform: `translate(
+  //       ${dimensions.boundedWidth + dimensions.histogramMargin}px, -${
+  //     dimensions.histogramHeight
+  //   }px) rotate(90deg)`,
+  // });
+
   drawHistogram({
     data: dataset,
     scale: xScale,
