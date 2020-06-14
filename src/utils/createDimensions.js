@@ -9,7 +9,7 @@ function createDimensions({ customDimensions = {} } = {}) {
       left: 50,
     },
     get width() {
-      return (window.innerWidth - this.margin.left - this.margin.right) * 0.95;
+      return (window.innerWidth - this.margin.left - this.margin.right) * 0.75;
     },
     get boundedWidth() {
       return this.width - this.margin.left - this.margin.right;
