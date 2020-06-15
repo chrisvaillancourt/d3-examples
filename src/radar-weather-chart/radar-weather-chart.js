@@ -22,7 +22,12 @@ function createDimensions({ customDimensions = {} } = {}) {
       left: 120,
     },
     get width() {
-      return (window.innerWidth - this.margin.left - this.margin.right) * 0.75;
+      return (
+        ((window.innerWidth > 1500 ? 1500 : window.innerWidth) -
+          this.margin.left -
+          this.margin.right) *
+        0.75
+      );
     },
     get boundedWidth() {
       return this.width - this.margin.left - this.margin.right;
@@ -179,7 +184,7 @@ async function createRadarChart() {
       .attr('y', -radiusScale(d) - 10)
       .attr('width', 40)
       .attr('height', 20)
-      .attr('fill', '#f8f9fa');
+      .attr('fill', '#ffffff');
   });
   var tickLabels = temperatureTicks.map(function (d) {
     if (!d) return;
