@@ -247,7 +247,7 @@ async function createRadarChart() {
   var highUvDays = uvGroup
     .selectAll('line')
     .data(
-      data.filter(function (d) {
+      data.filter(function getDaysAboveUvThreshold(d) {
         return uvAccessor(d) > uvIndexThreshold;
       })
     )
