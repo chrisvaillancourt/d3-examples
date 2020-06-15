@@ -6,9 +6,11 @@ import { json } from 'd3-fetch';
 import { select } from 'd3-selection';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { scaleTime, scaleLinear } from 'd3-scale';
-import { extent } from 'd3-array';
+import { extent, range } from 'd3-array';
 import { timeMonths } from 'd3-time';
 import { format } from 'd3-format';
+import { areaRadial } from 'd3-shape';
+import { interpolateYlOrRd } from 'd3-scale-chromatic';
 
 console.time('create radar chart');
 function createDimensions({ customDimensions = {} } = {}) {
@@ -106,6 +108,18 @@ async function createRadarChart() {
         dimensions.margin.top + dimensions.boundedRadius
       }px)`
     );
+  var defs = wrapper.append('defs');
+  var gradientId = 'temperature-gradient';
+  var gradient = defs.append('radialGradient').attr('id', gradientId);
+  const numberOfStops = 10;
+  var gradientColorScale = interpolateYlOrRd;
+
+  range(numberOfStops).forEach(function (i) {
+    gradient
+      .append('stop')
+      .attr('offset', `${(i * 100) / (numberOfStops - 1)}%`)
+      .attr('stop-color', gradientColorScale(i / (numberOfStops - 1)));
+  });
 
   // step 4) create scales
   // the location of a data element around the radar chart's center corresponds to its date
@@ -195,6 +209,52 @@ async function createRadarChart() {
       .attr('class', 'tick-label-temperature')
       .html(`${format('.0f')(d)}°F`);
   });
+
+  // step 6) draw data
+  const freezingPoint = 32;
+  var containsFreezing = radiusScale.domain()[0] < freezingPoint;
+  if (containsFreezing) {
+    const freezingCircle = bounds
+      .append('circle')
+      .attr('r', radiusScale(freezingPoint))
+      .attr('class', 'freezing-circle');
+  }
+  // areaGenerator returns the d attribute string for a <path> element
+  var areaGenerator = areaRadial()
+    .angle(function (d) {
+      return angleScale(dateAccessor(d));
+    })
+    .innerRadius(function getMinTempPosition(d) {
+      return radiusScale(temperatureMinAccessor(d));
+    })
+    .outerRadius(function getMaxTempPosition(d) {
+      return radiusScale(temperatureMaxAccessor(d));
+    });
+  // create path element and set d attribute
+  var area = bounds
+    .append('path')
+    // .attr('class', 'area')
+    .attr('d', areaGenerator(data))
+    .attr('fill', `url(#${gradientId})`);
+  const uvIndexThreshold = 8;
+  // offset UV lines to a point just inside the edges of the radius
+  const uvOffset = 0.95;
+  var uvGroup = bounds.append('g');
+  const uvCoordinateOffset = 0.1;
+  var highUvDays = uvGroup
+    .selectAll('line')
+    .data(
+      data.filter(function (d) {
+        return uvAccessor(d) > uvIndexThreshold;
+      })
+    )
+    .enter()
+    .append('line')
+    .attr('class', 'uv-line')
+    .attr('x1', (d) => getXFromDataPoint(d, uvOffset))
+    .attr('x2', (d) => getXFromDataPoint(d, uvOffset + uvCoordinateOffset))
+    .attr('y1', (d) => getYFromDataPoint(d, uvOffset))
+    .attr('y2', (d) => getYFromDataPoint(d, uvOffset + uvCoordinateOffset));
 }
 
 setupDom();
