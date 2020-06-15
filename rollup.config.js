@@ -33,6 +33,8 @@ export default {
     'heatmap/heatmap': 'src/heatmap/heatmap.js',
     'marginal-histogram/marginal-histogram':
       'src/marginal-histogram/marginal-histogram.js',
+    'radar-weather-chart/radar-weather-chart':
+      'src/radar-weather-chart/radar-weather-chart.js',
   },
   output: {
     dir: OUTPUT,
@@ -91,6 +93,10 @@ export default {
         {
           src: 'src/marginal-histogram/index.html',
           dest: 'dist/marginal-histogram/',
+        },
+        {
+          src: 'src/radar-weather-chart/index.html',
+          dest: 'dist/radar-weather-chart/',
         },
       ],
     }),
