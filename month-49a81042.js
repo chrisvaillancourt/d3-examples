@@ -1,1 +1,0 @@
-import{n as t}from"./defaultLocale-443e777c.js";var e=t((function(t){t.setDate(1),t.setHours(0,0,0,0)}),(function(t,e){t.setMonth(t.getMonth()+e)}),(function(t,e){return e.getMonth()-t.getMonth()+12*(e.getFullYear()-t.getFullYear())}),(function(t){return t.getMonth()})),n=e.range;export{n as a,e as m};
