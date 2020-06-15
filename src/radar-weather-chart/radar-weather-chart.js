@@ -5,7 +5,7 @@ import './radar-weather-chart.css';
 import { json } from 'd3-fetch';
 import { select } from 'd3-selection';
 import { timeParse, timeFormat } from 'd3-time-format';
-import { scaleTime, scaleLinear } from 'd3-scale';
+import { scaleTime, scaleLinear, scaleSqrt } from 'd3-scale';
 import { extent, range } from 'd3-array';
 import { timeMonths } from 'd3-time';
 import { format } from 'd3-format';
@@ -142,6 +142,9 @@ async function createRadarChart() {
   function getYFromDataPoint(d, offset = 1.4) {
     return getCoordsForAngle(angleScale(dateAccessor(d)), offset)[1];
   }
+  var cloudRadiusScale = scaleSqrt()
+    .domain(extent(data, cloudAccessor))
+    .range([1, 10]);
   // step 5) draw peripherals
   // doing this before data drawing (typically step 5)
   // drawing peripherals first is helpful when we want to layer data elements on top of chart peripherals
@@ -255,6 +258,24 @@ async function createRadarChart() {
     .attr('x2', (d) => getXFromDataPoint(d, uvOffset + uvCoordinateOffset))
     .attr('y1', (d) => getYFromDataPoint(d, uvOffset))
     .attr('y2', (d) => getYFromDataPoint(d, uvOffset + uvCoordinateOffset));
+
+  var cloudGroup = bounds.append('g');
+  const cloudOffset = 1.27;
+  var cloudDots = cloudGroup
+    .selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+    .attr('class', 'cloud-dot')
+    .attr('cx', function getCloudCircleX(d) {
+      return getXFromDataPoint(d, cloudOffset);
+    })
+    .attr('cy', function getCloudCircleY(d) {
+      return getYFromDataPoint(d, cloudOffset);
+    })
+    .attr('r', function getCloudCircleR(d) {
+      return cloudRadiusScale(cloudAccessor(d));
+    });
 }
 
 setupDom();
