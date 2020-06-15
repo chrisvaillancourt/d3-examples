@@ -5,7 +5,13 @@ import './radar-weather-chart.css';
 import { json } from 'd3-fetch';
 import { select, mouse } from 'd3-selection';
 import { timeParse, timeFormat } from 'd3-time-format';
-import { scaleTime, scaleLinear, scaleSqrt, scaleOrdinal } from 'd3-scale';
+import {
+  scaleTime,
+  scaleLinear,
+  scaleSqrt,
+  scaleOrdinal,
+  scaleSequential,
+} from 'd3-scale';
 import { extent, range } from 'd3-array';
 import { timeMonths } from 'd3-time';
 import { format } from 'd3-format';
@@ -219,6 +225,16 @@ async function createRadarChart() {
   var precipitationTypeColorScale = scaleOrdinal()
     .domain(precipitationTypes)
     .range(['#54a0ff', '#636e72', '#b2bec3']);
+  // use scaleSequential instead of a linear scale so we can use our color scale as an
+  // interpolator instead of specifying a range.
+  var temperatureColorScale = scaleSequential()
+    .domain(
+      extent([
+        ...data.map(temperatureMaxAccessor),
+        ...data.map(temperatureMinAccessor),
+      ])
+    )
+    .interpolator(gradientColorScale);
   // step 5) draw peripherals
   // doing this before data drawing (typically step 5)
   // drawing peripherals first is helpful when we want to layer data elements on top of chart peripherals
@@ -557,6 +573,14 @@ async function createRadarChart() {
       precipitationTypeAccessor(dataPoint)
         ? precipitationTypeColorScale(precipitationTypeAccessor(dataPoint))
         : '#dadadd'
+    );
+    tooltipTemperatureMin.style(
+      'color',
+      temperatureColorScale(temperatureMinAccessor(dataPoint))
+    );
+    tooltipTemperatureMax.style(
+      'color',
+      temperatureColorScale(temperatureMaxAccessor(dataPoint))
     );
   }
   function handleMouseLeave(e) {
