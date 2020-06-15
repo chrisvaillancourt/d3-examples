@@ -444,7 +444,7 @@ async function drawScatter() {
     hoverTopHistogram.style('opacity', 0);
   }
 
-  function handleVoronoiMouseEnter(datum, index) {
+  function handleVoronoiMouseEnter(datum) {
     tooltip.select('#min-temperature').text(formatMetric(xAccessor(datum)));
     tooltip.select('#max-temperature').text(formatMetric(yAccessor(datum)));
     tooltip.select('#date').text(formatDate(dateParser(datum.date)));
