@@ -9,10 +9,9 @@ import { scaleLinear, scaleSequential } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 import { format } from 'd3-format';
 import { Delaunay } from 'd3-delaunay';
-import { timeFormat, timeParse } from 'd3-time-format';
+import { timeFormat, timeParse, isoParse } from 'd3-time-format';
 import { interpolateRainbow } from 'd3-scale-chromatic';
 import { area, curveBasis } from 'd3-shape';
-// import { drawHistogram } from '../utils/drawHistogram';
 import { createDimensions } from '../utils/createDimensions';
 import { transition } from 'd3-transition';
 console.time('render chart');
@@ -336,6 +335,9 @@ async function drawScatter() {
     .attr('class', 'legend-highlight-text')
     .attr('x', legendHighlightBarWidth / 2)
     .attr('y', -6);
+  // path's aren't visible until they have a d attribute
+  var hoverTopHistogram = topHistogramBounds.append('path');
+  var hoverRightHistogram = rightHistogramBounds.append('path');
 
   function handleLegendMouseMove() {
     // we need to determine which dates the mouse is hovering over
@@ -411,6 +413,25 @@ async function drawScatter() {
         return date >= minDateToHighlight && date <= maxDateToHighlight;
       }
     }
+    const hoveredDate = isoParse(legendTickScale.invert(x));
+    var hoveredDates = dataset.filter(isDayWithinRange);
+    hoverTopHistogram
+      .attr('d', function setHoverTopHistogram(d) {
+        return topHistogramLineGenerator(topHistogramGenerator(hoveredDates));
+      })
+      .attr('fill', colorScale(hoveredDate))
+      .attr('stroke', 'white')
+      .style('opacity', 1);
+
+    hoverRightHistogram
+      .attr('d', function setHoverRightHistogram(d) {
+        return rightHistogramLineGenerator(
+          rightHistogramGenerator(hoveredDates)
+        );
+      })
+      .attr('fill', colorScale(hoveredDate))
+      .attr('stroke', 'white')
+      .style('opacity', 1);
   }
 
   function handleLegendMouseLeave() {
@@ -419,6 +440,8 @@ async function drawScatter() {
     legendHighlightGroup.style('opacity', 0);
     legendValues.style('opacity', 1);
     legendValueTicks.style('opacity', 1);
+    hoverRightHistogram.style('opacity', 0);
+    hoverTopHistogram.style('opacity', 0);
   }
 
   function handleVoronoiMouseEnter(datum, index) {
