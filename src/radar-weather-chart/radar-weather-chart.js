@@ -303,6 +303,102 @@ async function createRadarChart() {
     .style('fill', function getColorFromPrecipType(d) {
       return precipitationTypeColorScale(precipitationTypeAccessor(d));
     });
+  var annotationGroup = bounds.append('g');
+  function drawAnnotation({ angle, offset, text, annotationGrp }) {
+    // draw lines 1.6 times our circle's radius
+    const lineOffset = 1.6;
+    const textXCoordOffset = 6;
+    const [x1, y1] = getCoordsForAngle(angle, offset);
+    const [x2, y2] = getCoordsForAngle(angle, lineOffset);
+
+    annotationGrp
+      .append('line')
+      .attr('class', 'annotation-line')
+      .attr('x1', x1)
+      .attr('x2', x2)
+      .attr('y1', y1)
+      .attr('y2', y2);
+
+    annotationGrp
+      .append('text')
+      .attr('class', 'annotation-text')
+      .attr('x', x2 + textXCoordOffset)
+      .attr('y', y2)
+      .text(text);
+  }
+  // set angle (in radians) of annotations around the center of the chart
+  // a circle has 2pie radians in one full rotation
+  const cloudCoverAnnotationAngle = Math.PI * 0.23;
+  const precipitationAnnotationAngle = Math.PI * 0.26;
+  const uvIndexThresholdAnnotationAngle = Math.PI * 0.734;
+  const uvIndexThresholdAnnotationOffset = uvOffset + 0.05;
+  const uvAnnotationText = `UV Index over ${uvIndexThreshold}`;
+  const tempAnnotationAngle = Math.PI * 0.7;
+  const tempAnnotationOffset = 0.5;
+  const freezingTempAnnotationAngle = Math.PI * 0.9;
+  // have to convert freezing point into a value relative to our bounded radius since
+  // drawAnnotation() takes an offset instead of a radius value
+  const freezingTempOffset =
+    radiusScale(freezingPoint) / dimensions.boundedRadius;
+
+  drawAnnotation({
+    angle: cloudCoverAnnotationAngle,
+    offset: cloudOffset,
+    text: 'Cloud Cover',
+    annotationGrp: annotationGroup,
+  });
+  drawAnnotation({
+    angle: precipitationAnnotationAngle,
+    offset: precipitationOffset,
+    text: 'Precipitation',
+    annotationGrp: annotationGroup,
+  });
+  drawAnnotation({
+    angle: uvIndexThresholdAnnotationAngle,
+    offset: uvIndexThresholdAnnotationOffset,
+    text: uvAnnotationText,
+    annotationGrp: annotationGroup,
+  });
+  drawAnnotation({
+    angle: tempAnnotationAngle,
+    offset: tempAnnotationOffset,
+    text: 'Temperature',
+    annotationGrp: annotationGroup,
+  });
+  if (containsFreezing) {
+    drawAnnotation({
+      angle: freezingTempAnnotationAngle,
+      offset: freezingTempOffset,
+      text: 'Freezing Temperatures',
+      annotationGrp: annotationGroup,
+    });
+  }
+  // create precipitation color legend
+  const precipLabelAngle = Math.PI * 0.26;
+  const precipLabelCoordOffset = 1.6;
+  const precipCircleXOffset = 15;
+  const precipAnnotationYOffset = (index) => 16 * (index + 1);
+  const [precipLabelXCoord, precipLabelYCoord] = getCoordsForAngle(
+    precipLabelAngle,
+    precipLabelCoordOffset
+  );
+  const precipLabelTextXOffset = 25;
+
+  precipitationTypes.forEach(function (precipitationType, index) {
+    annotationGroup
+      .append('circle')
+      .attr('cx', precipLabelXCoord + precipCircleXOffset)
+      .attr('cy', precipLabelYCoord + precipAnnotationYOffset(index))
+      .attr('r', 4)
+      .style('opacity', 0.7)
+      .attr('fill', precipitationTypeColorScale(precipitationType));
+    annotationGroup
+      .append('text')
+      .attr('class', 'annotation-text')
+      .attr('x', precipLabelXCoord + precipLabelTextXOffset)
+      .attr('y', precipLabelYCoord + precipAnnotationYOffset(index))
+      .text(precipitationType);
+  });
 }
 
 setupDom();
