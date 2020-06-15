@@ -3,13 +3,13 @@ import '../assets/styles/base.css';
 import '../assets/styles/breadcrumb-nav.css';
 import './radar-weather-chart.css';
 import { json } from 'd3-fetch';
-import { select } from 'd3-selection';
+import { select, mouse } from 'd3-selection';
 import { timeParse, timeFormat } from 'd3-time-format';
 import { scaleTime, scaleLinear, scaleSqrt, scaleOrdinal } from 'd3-scale';
 import { extent, range } from 'd3-array';
 import { timeMonths } from 'd3-time';
 import { format } from 'd3-format';
-import { areaRadial } from 'd3-shape';
+import { areaRadial, arc } from 'd3-shape';
 import { interpolateYlOrRd } from 'd3-scale-chromatic';
 
 console.time('create radar chart');
@@ -51,12 +51,79 @@ function createDimensions({ customDimensions = {} } = {}) {
 }
 
 function setupDom() {
+  // var metrics = [
+  //   {
+  //     name: 'UV Index',
+  //     classList: ['tooltip-metric', 'tooltip-uv'],
+  //     id: 'tooltip-uv',
+  //   },
+  //   {
+  //     name: 'Cloud Cover',
+  //     classList: ['tooltip-metric', 'tooltip-cloud'],
+  //     id: 'tooltip-cloud',
+  //   },
+  //   {
+  //     name: 'Precipitation Probability',
+  //     classList: ['tooltip-metric', 'tooltip-precipitation'],
+  //     id: 'tooltip-precipitation',
+  //   },
+  //   {
+  //     name: 'Precipitation Type',
+  //     classList: ['tooltip-metric', 'tooltip-precipitation-type'],
+  //     id: 'tooltip-precipitation-type',
+  //   },
+  // ];
   var parent = document.querySelector('#flex');
   var fragment = new DocumentFragment();
   var wrapper = document.createElement('div');
   wrapper.id = 'wrapper';
-  fragment.appendChild(wrapper);
-  parent.appendChild(fragment);
+
+  var tooltipFrag = new DocumentFragment();
+
+  var tooltipEl = document.createElement('div');
+  tooltipEl.id = 'tooltip';
+  tooltipEl.classList.add('tooltip');
+
+  var tooltipDateEl = document.createElement('div');
+  tooltipDateEl.id = 'tooltip-date';
+  tooltipDateEl.classList.add('tooltip-date');
+
+  var tooltipTemperatureEl = document.createElement('div');
+  tooltipTemperatureEl.id = 'tooltip-temperature';
+  tooltipTemperatureEl.classList.add('tooltip-temperature');
+
+  var tooltipMinTempSpan = document.createElement('span');
+  tooltipMinTempSpan.id = 'tooltip-temperature-min';
+  tooltipTemperatureEl.append(tooltipMinTempSpan);
+
+  // TODO add - separator between min and max span
+
+  var tooltipMaxTempSpan = document.createElement('span');
+  tooltipMaxTempSpan.id = 'tooltip-temperature-max';
+  tooltipTemperatureEl.append(tooltipMaxTempSpan);
+  // var metricFrag = new DocumentFragment();
+  // metrics.forEach(function createMetricDivs(metric) {
+  //   var tooltipMetricDiv = document.createElement('div');
+  //   tooltipMetricDiv.classList.add(...metric.classList);
+
+  //   var tooltipMetricDescriptionDiv = document.createElement('div');
+  //   tooltipMetricDescriptionDiv.textContent = metric.name;
+
+  //   var tooltipMetricValueDiv = document.createElement('div');
+  //   tooltipMetricValueDiv.id = metric.id;
+
+  //   tooltipMetricDiv.append(tooltipMetricDescriptionDiv, tooltipMetricValueDiv);
+  //   metricFrag.append(tooltipMetricDiv);
+  // });
+
+  // // dom manipulations
+  // tooltipTempEl.append(tooltipMinTempSpan, tooltipMaxTempSpan);
+
+  // tooltipEl.append(tooltipDateEl, tooltipTempEl, metricFrag);
+
+  tooltipFrag.append(tooltipEl, tooltipDateEl, tooltipTemperatureEl);
+  fragment.append(wrapper, tooltipFrag);
+  parent.append(fragment);
 }
 
 async function createRadarChart() {
@@ -399,9 +466,109 @@ async function createRadarChart() {
       .attr('y', precipLabelYCoord + precipAnnotationYOffset(index))
       .text(precipitationType);
   });
+  // step 7) set-up interactions
+  var tooltip = select('#tooltip');
+  var tooltipTemperatureMin = tooltip.select('#tooltip-temperature-min');
+  var tooltipTemperatureMax = tooltip.select('#tooltip-temperature-max');
+  var tooltipUv = tooltip.select('#tooltip-uv');
+  var tooltipCloud = tooltip.select('#tooltip-cloud');
+  var tooltipPrecipitation = tooltip.select('#tooltip-precipitation');
+  var tooltipPrecipitationType = tooltip.select('#tooltip-precipitation-type');
+  var tooltipPrecipitationLabel = tooltip.select('.tooltip-precipitation-type');
+
+  var tooltipLine = bounds.append('path').attr('class', 'tooltip-line');
+
+  var listenerCircle = bounds
+    .append('circle')
+    .attr('class', 'listener-circle')
+    .attr('r', dimensions.width / 2)
+    .on('mousemove', handleMouseMove)
+    .on('mouseleave', handleMouseLeave);
+
+  function handleMouseMove(e) {
+    const [x, y] = mouse(this);
+    // rotate angle back 1/4 turn to match date scale
+    var angle = getAngleFromCoordinates(x, y) + Math.PI / 2;
+    if (angle < 0) {
+      // rotate any negative angles around the circle one full turn so they fit on the angleScale
+      angle = Math.PI * 2 + angle;
+    }
+    // We want to draw a line to highlight the date currently hovered
+    // but it needs to increase in width as it gets farther from the center.
+    // Use arc() to create this shape.
+    // innerRadius and outerRadius tell the generator how long we'd like the arc to be
+    // startAngle and endAngle tell it how wide it should be
+    var tooltipArcGenerator = arc()
+      .innerRadius(0)
+      .outerRadius(dimensions.boundedRadius * 1.6)
+      .startAngle(angle - 0.015)
+      .endAngle(angle + 0.015);
+    tooltipLine.attr('d', tooltipArcGenerator()).style('opacity', 1);
+    // get coordinates of the point at the end of the line
+    var [outerCoordinateX, outerCoordinateY] = getCoordsForAngle(angle, 1.6);
+
+    // use calc() to choose which side of the tooltip to anchor to outerCoordinates
+    tooltip.style('opacity', 1).style(
+      'transform',
+      `translate(
+        calc(${
+          outerCoordinateX < -50
+            ? '40px - 100'
+            : outerCoordinateX > 50
+            ? '-40px + 0'
+            : '-50'
+        }%
+        + ${
+          outerCoordinateX + dimensions.margin.top + dimensions.boundedRadius
+        }px),
+        calc(${
+          outerCoordinateY < -50
+            ? '40px - 100'
+            : outerCoordinateY > 50
+            ? '-40px + 0'
+            : '-50'
+        }% + ${
+        outerCoordinateY + dimensions.margin.top + dimensions.boundedRadius
+      }px)
+      )`
+    );
+    // .invert() converts range the dimension (angle) to it's domain dimension (date)
+    var date = angleScale.invert(angle);
+    // format the date the same as our dataset and get the date with the same date string
+    var dateString = timeFormat('%Y-%m-%d')(date);
+    var dataPoint = data.filter(function getMatchingData(d) {
+      return d.date == dateString;
+    })[0];
+    if (!dataPoint) return;
+    tooltipTemperatureMin.html(
+      `${format('.1f')(temperatureMinAccessor(dataPoint))}°F`
+    );
+    tooltipTemperatureMax.html(
+      `${format('.1f')(temperatureMaxAccessor(dataPoint))}°F`
+    );
+    tooltipUv.text(uvAccessor(dataPoint));
+    tooltipCloud.text(cloudAccessor(dataPoint));
+    tooltipPrecipitation.text(
+      format('.0%')(precipitationProbabilityAccessor(dataPoint))
+    );
+    tooltipPrecipitationType.text(precipitationTypeAccessor(dataPoint));
+    tooltipPrecipitationLabel.style(
+      'color',
+      precipitationTypeAccessor(dataPoint)
+        ? precipitationTypeColorScale(precipitationTypeAccessor(dataPoint))
+        : '#dadadd'
+    );
+  }
+  function handleMouseLeave(e) {
+    tooltipLine.style('opacity', 0);
+    tooltip.style('opacity', 0);
+  }
+  function getAngleFromCoordinates(x, y) {
+    return Math.atan2(y, x);
+  }
 }
 
-setupDom();
+// setupDom();
 createRadarChart()
   .then(() => console.timeEnd('create radar chart'))
   .catch(console.error);
