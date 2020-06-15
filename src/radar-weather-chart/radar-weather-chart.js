@@ -5,7 +5,7 @@ import './radar-weather-chart.css';
 import { json } from 'd3-fetch';
 import { select } from 'd3-selection';
 import { timeParse, timeFormat } from 'd3-time-format';
-import { scaleTime, scaleLinear, scaleSqrt } from 'd3-scale';
+import { scaleTime, scaleLinear, scaleSqrt, scaleOrdinal } from 'd3-scale';
 import { extent, range } from 'd3-array';
 import { timeMonths } from 'd3-time';
 import { format } from 'd3-format';
@@ -145,6 +145,13 @@ async function createRadarChart() {
   var cloudRadiusScale = scaleSqrt()
     .domain(extent(data, cloudAccessor))
     .range([1, 10]);
+  var precipitationRadiusScale = scaleSqrt()
+    .domain(extent(data, precipitationProbabilityAccessor))
+    .range([1, 8]);
+  var precipitationTypes = ['rain', 'sleet', 'snow'];
+  var precipitationTypeColorScale = scaleOrdinal()
+    .domain(precipitationTypes)
+    .range(['#54a0ff', '#636e72', '#b2bec3']);
   // step 5) draw peripherals
   // doing this before data drawing (typically step 5)
   // drawing peripherals first is helpful when we want to layer data elements on top of chart peripherals
@@ -275,6 +282,26 @@ async function createRadarChart() {
     })
     .attr('r', function getCloudCircleR(d) {
       return cloudRadiusScale(cloudAccessor(d));
+    });
+  var precipitationGroup = bounds.append('g');
+  const precipitationOffset = 1.14;
+  var precipitationDots = precipitationGroup
+    .selectAll('circle')
+    .data(data.filter(precipitationTypeAccessor))
+    .enter()
+    .append('circle')
+    .attr('class', 'precipitation-dot')
+    .attr('cx', function getPrecipCircleX(d) {
+      return getXFromDataPoint(d, precipitationOffset);
+    })
+    .attr('cy', function getPrecipCircleY(d) {
+      return getYFromDataPoint(d, precipitationOffset);
+    })
+    .attr('r', function getRadiusFromPrecipType(d) {
+      return precipitationRadiusScale(precipitationProbabilityAccessor(d));
+    })
+    .style('fill', function getColorFromPrecipType(d) {
+      return precipitationTypeColorScale(precipitationTypeAccessor(d));
     });
 }
 
