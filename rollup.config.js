@@ -35,6 +35,8 @@ export default {
       'src/marginal-histogram/marginal-histogram.js',
     'radar-weather-chart/radar-weather-chart':
       'src/radar-weather-chart/radar-weather-chart.js',
+    'animated-sankey-diagram/animated-sankey-diagram':
+      'src/animated-sankey-diagram/animated-sankey-diagram.js',
   },
   output: {
     dir: OUTPUT,
@@ -97,6 +99,10 @@ export default {
         {
           src: 'src/radar-weather-chart/index.html',
           dest: 'dist/radar-weather-chart/',
+        },
+        {
+          src: 'src/animated-sankey-diagram/index.html',
+          dest: 'dist/animated-sankey-diagram/',
         },
       ],
     }),
