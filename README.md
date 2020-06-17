@@ -20,10 +20,10 @@ Run `npm run deploy` to build for production and deploy to GitHub Pages.
 - [x] Line chart
 - [x] Animated line chart
 - [x] SVG map
-- [ ] Radar chart
+- [x] Radar chart
 - [ ] Pie
 - [ ] Donut
-- [ ] Heatmap
+- [x] Heatmap
 - [ ] Boxplot
 
 ## To-do
