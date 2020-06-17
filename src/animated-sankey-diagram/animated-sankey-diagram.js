@@ -40,6 +40,7 @@ async function createAnimatedSankey() {
     return [sex, ses].join('--');
   }
   var stackedProbabilities = {};
+  // TODO clean-up generation of stackedProbabilities
   data.forEach(function (startingPoint) {
     var key = getStatusKey(startingPoint);
     var stackedProbability = 0;
@@ -107,7 +108,7 @@ async function createAnimatedSankey() {
     .clamp(true);
 
   // the Y-scale will convert a socioeconomic id into a y position.
-  // We want the paths to be evently spaced between the bounds and still fit within
+  // We want the paths to be evenly spaced between the bounds and still fit within
   // the total size. We can get this by padding the scale's domain by setting it to [-1, 3]
   // instead of [ 0, 2 ].
   // We'll also invert the domain to be [ 3, -1 ] b/c we want the highest y position
