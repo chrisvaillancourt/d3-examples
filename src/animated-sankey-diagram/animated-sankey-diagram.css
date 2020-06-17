@@ -18,3 +18,12 @@ body {
   fill: none;
   stroke: white;
 }
+.start-label {
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+.start-title {
+  text-anchor: end;
+  font-size: 0.8em;
+  opacity: 0.6;
+}
