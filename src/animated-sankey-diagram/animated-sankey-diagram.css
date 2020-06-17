@@ -12,7 +12,17 @@
   color: #34495e;
 }
 body {
-  background-color: #f6f8fa;
+  /* background-color: #f6f8fa; */
+  background-color: #ebecee;
+  font-size: 16px;
+  color: #34495e;
+}
+svg {
+  fill: #34495e;
+  overflow: visible;
+}
+svg text {
+  user-select: none;
 }
 .category-path {
   fill: none;
@@ -25,5 +35,12 @@ body {
 .start-title {
   text-anchor: end;
   font-size: 0.8em;
+  opacity: 0.6;
+}
+.label {
+  font-weight: 600;
+  dominant-baseline: middle;
+}
+.ending-marker {
   opacity: 0.6;
 }
