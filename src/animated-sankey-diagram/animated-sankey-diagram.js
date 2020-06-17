@@ -3,9 +3,10 @@ import '../assets/styles/base.css';
 import '../assets/styles/breadcrumb-nav.css';
 import './animated-sankey-diagram.css';
 import { json } from 'd3-fetch';
-import { range, min, bisect } from 'd3-array';
+import { range, min, bisect, merge } from 'd3-array';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
+import { line, curveMonotoneX } from 'd3-shape';
 
 async function createAnimatedSankey() {
   // step 1) access data
@@ -116,12 +117,52 @@ async function createAnimatedSankey() {
 
   var startYScale = scaleLinear()
     .domain([sesIds.length, -1])
-    .range(0, dimensions.boundedHeight);
+    .range([0, dimensions.boundedHeight]);
   var endYScale = scaleLinear()
     .domain([educationIds.length, -1])
     .range([0, dimensions.boundedHeight]);
 
   // step 5) draw data
+
+  // we'll use line() to create a d attribute string generator
+  // the line generator will take, as input, an array of six identical arrays.
+
+  // The first item in each array is the socioeconomic status id (starting pont)
+  // and the second item is the education id (ending point).
+
+  // The line generator will return the starting y position of the first 3 arrays and the ending position for the last 3 arrays.
+
+  // We want to repeat the array 6 times in order to devote 1/5 of the horizontal space to the y-position transition.
+
+  var linkLineGenerator = line()
+    .x(function setXAccessor(d, i) {
+      return i * (dimensions.boundedWidth / 5);
+    })
+    .y(function setYAccessor(d, i) {
+      return i <= 2 ? startYScale(d[0]) : endYScale(d[1]);
+    })
+    // setting the curve interpolation smooths out some of the rough edges
+    // that are generated with the default curveLinear
+    .curve(curveMonotoneX);
+
+  // TODO refactor to avoid nested loops
+  var linkOptions = merge(
+    sesIds.map(function (startId) {
+      return educationIds.map(function (endId) {
+        return new Array(6).fill([startId, endId]);
+      });
+    })
+  );
+
+  var linksGroup = bounds.append('g');
+  var links = linksGroup
+    .selectAll('.category-path')
+    .data(linkOptions)
+    .enter()
+    .append('path')
+    .attr('class', 'category-path')
+    .attr('d', linkLineGenerator)
+    .attr('stroke-width', dimensions.pathHeight);
 
   //step 6) draw peripherals
 
@@ -129,7 +170,6 @@ async function createAnimatedSankey() {
 }
 
 console.time('create chart');
-
 createAnimatedSankey()
   .then(() => console.timeEnd('create chart'))
   .catch(console.error);
