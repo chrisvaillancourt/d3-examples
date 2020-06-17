@@ -11,3 +11,10 @@
   font-size: 16px;
   color: #34495e;
 }
+body {
+  background-color: #f6f8fa;
+}
+.category-path {
+  fill: none;
+  stroke: white;
+}
