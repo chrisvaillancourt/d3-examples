@@ -196,6 +196,53 @@ async function createAnimatedSankey() {
     .attr('y', startYScale(sesIds[sesIds.length - 1]) - 50)
     .text('Status');
 
+  var endingLabelsGroup = bounds
+    .append('g')
+    .style('transform', `translateX(${dimensions.boundedWidth + 20}px)`);
+  var endingLabels = endingLabelsGroup
+    .selectAll('.end-label')
+    .data(educationNames)
+    .enter()
+    .append('text')
+    .attr('class', 'label end-label')
+    .attr('y', function getLabelY(d, i) {
+      return endYScale(i) - 15;
+    })
+    .text(function getD(d) {
+      return d;
+    });
+
+  // add ending markers
+  var maleMarkers = endingLabelsGroup
+    .selectAll('.male-marker')
+    .data(educationIds)
+    .enter()
+    .append('circle')
+    .attr('class', 'ending-marker male-marker')
+    .attr('r', 5.5)
+    .attr('cx', 5)
+    .attr('cy', function getCircleY(d) {
+      return endYScale(d) + 5;
+    });
+
+  // We need to define our own triangle polygon.
+  // This triangle won't be equilateral but it will be close.
+  // A non-equilateral the triangle's appearance more aesthetically pleasing.
+
+  // Writing the value as an array and then joining it makes parsing and modifying it easier.
+  var trianglePoints = ['-7,  6', ' 0, -6', ' 7,  6'].join(' ');
+
+  var femaleMarkers = endingLabelsGroup
+    .selectAll('.female-marker')
+    .data(educationIds)
+    .enter()
+    .append('polygon')
+    .attr('class', 'ending-marker female-marker')
+    .attr('points', trianglePoints)
+    .attr('transform', function getScaledTransform(d) {
+      return `translate(5, ${endYScale(d) + 20})`;
+    });
+
   //step 7) set-up interactions
 }
 
@@ -228,9 +275,6 @@ function createDimensions({ customDimensions = {} } = {}) {
     },
     get radius() {
       return this.width / 2;
-    },
-    get boundedRadius() {
-      return this.radius - (this.margin.left + this.margin.right) / 2;
     },
     ...customDimensions,
   };
