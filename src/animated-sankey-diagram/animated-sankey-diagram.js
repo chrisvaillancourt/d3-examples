@@ -166,6 +166,36 @@ async function createAnimatedSankey() {
 
   //step 6) draw peripherals
 
+  var startingLabelsGroup = bounds
+    .append('g')
+    .style('transform', 'translateX(-20px)');
+  var startingLabels = startingLabelsGroup
+    .selectAll('.start-label')
+    .data(sesIds)
+    .enter()
+    .append('text')
+    .attr('class', 'label start-label')
+    .attr('y', function getLabelY(d, i) {
+      return startYScale(i);
+    })
+    .text(function getLabelText(d, i) {
+      return sentenceCase(sesNames[i]);
+    });
+
+  // add a title to contextualize 'low' , 'middle', 'high'
+  // We need to create two separate labels because svg <text> doesn't wrap
+  // TODO make label positioning more flexible
+  var startLabel = startingLabelsGroup
+    .append('text')
+    .attr('class', 'start-title')
+    .attr('y', startYScale(sesIds[sesIds.length - 1]) - 65)
+    .text('Socioeconomic');
+  var startLabelLineTwo = startingLabelsGroup
+    .append('text')
+    .attr('class', 'start-title')
+    .attr('y', startYScale(sesIds[sesIds.length - 1]) - 50)
+    .text('Status');
+
   //step 7) set-up interactions
 }
 
